@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: delivery-pipeline
+  labels:
+    app.kubernetes.io/part-of: delivery-pipeline
+    environment: production
