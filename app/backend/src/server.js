@@ -142,6 +142,22 @@ app.get('/api/v1/deployments', async (req, res) => {
   }
 });
 
+app.get('/api/v1/deployment-stats', async (req, res) => {
+  try {
+    const result = await pgPool.query(`
+      SELECT 
+        COUNT(*) as total_deployments,
+        COUNT(*) FILTER (WHERE status = 'success') as successful,
+        COUNT(*) FILTER (WHERE status = 'failed') as failed,
+        COUNT(*) FILTER (WHERE status = 'pending') as pending
+      FROM deployments
+    `);
+    res.json({ stats: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch deployment stats' });
+  }
+});
+
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });

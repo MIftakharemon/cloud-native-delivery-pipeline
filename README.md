@@ -102,6 +102,7 @@ curl http://localhost:8080
 | Backend API | http://localhost:3001 | REST API |
 | Health Check | http://localhost:3001/health | Service health |
 | Metrics | http://localhost:3001/metrics | Prometheus metrics |
+| Deployment Stats | http://localhost:3001/api/v1/deployment-stats | Deployment statistics |
 
 ### Database Access
 

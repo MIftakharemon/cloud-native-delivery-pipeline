@@ -7,6 +7,7 @@ function App() {
   const [status, setStatus] = useState(null);
   const [health, setHealth] = useState(null);
   const [deployments, setDeployments] = useState([]);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -18,15 +19,17 @@ function App() {
 
   const fetchAllData = async () => {
     try {
-      const [statusRes, healthRes, deployRes] = await Promise.allSettled([
+      const [statusRes, healthRes, deployRes, statsRes] = await Promise.allSettled([
         axios.get(`${API_BASE}/api/v1/status`),
         axios.get(`${API_BASE}/health`),
         axios.get(`${API_BASE}/api/v1/deployments`),
+        axios.get(`${API_BASE}/api/v1/deployment-stats`),
       ]);
 
       if (statusRes.status === 'fulfilled') setStatus(statusRes.value.data);
       if (healthRes.status === 'fulfilled') setHealth(healthRes.value.data);
       if (deployRes.status === 'fulfilled') setDeployments(deployRes.value.data.deployments);
+      if (statsRes.status === 'fulfilled') setStats(statsRes.value.data.stats);
 
       setLoading(false);
       setError(null);
@@ -97,6 +100,32 @@ function App() {
               <div style={styles.infoRow}><span>Environment:</span><span>{status.environment}</span></div>
               <div style={styles.infoRow}><span>Last Request:</span><span>{status.lastRequest}</span></div>
             </div>
+          )}
+        </div>
+
+        <div style={styles.card}>
+          <h2 style={styles.cardTitle}>Deployment Statistics</h2>
+          {stats ? (
+            <div style={styles.statsGrid}>
+              <div style={styles.statBox}>
+                <span style={styles.statValue}>{stats.total_deployments}</span>
+                <span style={styles.statLabel}>Total</span>
+              </div>
+              <div style={styles.statBox}>
+                <span style={{ ...styles.statValue, color: '#22c55e' }}>{stats.successful}</span>
+                <span style={styles.statLabel}>Successful</span>
+              </div>
+              <div style={styles.statBox}>
+                <span style={{ ...styles.statValue, color: '#ef4444' }}>{stats.failed}</span>
+                <span style={styles.statLabel}>Failed</span>
+              </div>
+              <div style={styles.statBox}>
+                <span style={{ ...styles.statValue, color: '#f59e0b' }}>{stats.pending}</span>
+                <span style={styles.statLabel}>Pending</span>
+              </div>
+            </div>
+          ) : (
+            <p style={styles.noData}>No stats available</p>
           )}
         </div>
 
@@ -252,6 +281,29 @@ const styles = {
     fontSize: '0.85rem',
     textAlign: 'center',
     padding: '2rem',
+  },
+  statsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '1rem',
+  },
+  statBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '1rem',
+    backgroundColor: '#0f172a',
+    borderRadius: '4px',
+  },
+  statValue: {
+    fontSize: '1.5rem',
+    fontWeight: '600',
+    color: '#f8fafc',
+  },
+  statLabel: {
+    fontSize: '0.75rem',
+    color: '#94a3b8',
+    marginTop: '0.25rem',
   },
   loading: {
     display: 'flex',
