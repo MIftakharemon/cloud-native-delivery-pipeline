@@ -115,6 +115,16 @@ app.get('/metrics', async (req, res) => {
   }
 });
 
+app.get('/api/v1/ready', async (req, res) => {
+  try {
+    await pgPool.query('SELECT 1');
+    await redis.ping();
+    res.json({ status: 'ready' });
+  } catch (err) {
+    res.status(503).json({ status: 'not ready', error: err.message });
+  }
+});
+
 app.get('/api/v1/status', async (req, res) => {
   try {
     await redis.set('last_request', new Date().toISOString(), 'EX', 300);
